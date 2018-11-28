@@ -1,4 +1,5 @@
 # Introduction 
+
 In this series, we learn to use the Azure AI platform with structured (log telemetry) and unstructured (video) data from a real-world factory floor dataset to detect anomalies and to predict when maintenance is required. We use historical data to train machine learning models and then deploy the models to do inferencing on streaming data to detect issues in real-time.  These scenarios are applicable to the IoT domain across multiple industry verticals, including manufacturing, healthcare, finance, retail and business process / software monitoring.
 
 We expose a range of open-source and Microsoft Azure technologies, Azure IoT Hub, Toolkit for Azure IoT Edge, Azure ML SDK (for Automated Machine Learning, Model Management and Deployment), Azure Container Instance, Azure Kubernetes Service, Azure Databricks, Jupyter Notebooks with Python. These features are designed to enable data scientists and developers to build and deploy powerful machine learning models by facilitating many of the steps in the data science lifecycle.
@@ -13,5 +14,7 @@ No Azure prerequisites are required. But intermediate knowledge of Python (espec
 
 The instuctor will provide a link to you that you can use for provisioning your environment.
 
-Log into the environment and clone this course repository from GitHub.
+You can run these notebooks both on Azure Databricks and on Data Science Virtual Machines.  Please follow the below instructions for the environment you are working with: 
 
+- [DSVM](lab0.0_Setting_Up_Env/configure_environment_DSVM.ipynb)
+- [Aure Databricks](lab0.0_Setting_Up_Env/configure_environment_ADB.ipynb)

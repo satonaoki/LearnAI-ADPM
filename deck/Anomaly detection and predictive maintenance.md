@@ -3,79 +3,128 @@
 <!-- page_number: true -->
 
 # Anomaly Detection and Predictive Maintenance
-###
-### Seth Mottaghinejad
-Data Scientist
-sethmott@microsoft.com
+##
+### Wolfgang M. Pauli, Ph.D.
+> wolfgang.pauli@microsoft.com
 ### 
-### Wolfgang Pauli
-AI Developer
-wolfgang.pauli@microsoft.com
-
+### Seth Mottaghinejad
+> sethmott@microsoft.com
+##
 <div style="text-align:right"><img src ="./images/microsoft-logo-white-small.jpg" width="500"/></div>
 
 --------------------------------------------------------------------------------
 
 ## Getting started
 
-- instructor introductions
-- user access to environment
-- participant backgrounds
-- course expectations
+- introduction of the [Learn-AI team](https://learnanalytics.microsoft.com/)
+- instructor introductions and backgrounds
+- quick survey of participant backgrounds and expectations from the course
+
+--------------------------------------------------------------------------------
+
+## Access to the course environment
+
+- we recommend that you open your browser to a **private (incognito) mode** to follow these instructions
+- please log into https://aka.ms/learnai-adpm and fill out registeration form and hit `Submit` followed by `LAUNCH LAB`
+- after a few minutes, you will get a set of access credentials
+  - with the **Microsoft Azure** user credentials log into the [Azure portal](http://portal.azure.com/) and examine the resources that were created
+  - using **Environment Details** credentials, go to [http://<DSVM_NAME>:8000](http://<DSVM_NAME>:8080) and log in with the user name and password provided
+- save your credentials somewhere in case you accidentally close the page and need to log back in
+
+--------------------------------------------------------------------------------
+
+## Course series: Using AI to detect and predict anomalies in structured and unstructured time series data
+
+- Course 1: Anomaly detection on structured streaming data (*today*)
+- Course 2: Predictive maintenance using automated machine learning (*tmrw*)
+- Course 3: Anomaly detection on unstructured (video) data (*in progress*)
+- Course 4: Deploying Anomaly detection to IoT/Edge devices (*in progress*)
 
 --------------------------------------------------------------------------------
 
 ## About the course
 
+- you are presented with many data science-*ish* challenges throughout the course
+- you learn about different tools in the process of building an E2E solution
 - this course is hands-on with lots of exercises (solutions will be provided)
-- some exercises are intentionally longer and difficult
-- programming exercises are in Python on a Jupyter Notebook
-- you will be presented with many data science-*ish* challenges
 - during exercises you're encouraged to **sit together and work in groups**
+- a few of the exercises are intentionally longer and difficult
+- programming exercises are in Python on a Jupyter Notebook, so intermediate knowledge of Python is required
 
 --------------------------------------------------------------------------------
 
 ## Learning goals
 
-- pre-processing for hot (streaming) data and cold data
-- bring together supervised and unsupervised learning to create a predictive model
-- automated machine learning vs hand-trained models
-- use the Azure SDK to train and deploy models
+- understand how to combine Azure AI Platform tools to solve real-world problems
+- learn to think like a data scientist and speak the language
+- learn to follow best practices to handle complex projects
+- use automated machine learning to improve on hand-trained models
+- use the Azure SDK to manage Workspaces and train and deploy models
 
 --------------------------------------------------------------------------------
 
 ## Tools covered
 
-- Python (esp. pandas and scikit-learn)
-- Jupyter Notebooks
-- Open-Source Python port of Twitter anomaly detection API
-- Azure Databricks
-- HyperDrive (Tuning of Hyperparameters)
 - Azure Machine Learning (AML) Python SDK
-- Azure Machine Learning SDK for automated ML
+	- HyperDrive (for hyper-parameters tuning)
+	- AmlCompute (fka BatchAI)
+	- automated Machine Learning
+- Two flavours of Data Science notebooks
+	- Azure Databricks
+	- Jupyter Notebooks
+- Python (esp. `pandas` and `scikit-learn`) and Conda
+- Open-Source Python port of Twitter anomaly detection API
 
 --------------------------------------------------------------------------------
 
-## Course Series: Using AI to Detect and Predict Anomalies in Structured and Unstructured Time Series Data
+## Jupyter Notebooks
 
-Course 1: Anomaly detection on structured streaming data (*today*)
-Course 2: Predictive Maintenance using Automated Machine Learning (*tmrw*)
-Course 3: Anomaly detection on unstructured (video) data
-Course 4: Deploying Anomaly detection to IoT/Edge devices
+- A document with cells containing Markdown, Python, bash and more
+- A code cell shows `In []` when not yet run and `In [*]` when busy
+- Cells also have shortcuts called *magics*, for example
+  - starting a code cell with `%%bash` or `!` allows us to run shell commands
+  - `%cat` prints a file, `%load` loads a script, `%run` runs a script
+  - `%set_env` and `%env` are used to set and list environment variables
+- You can create a **Conda environment** and select it as the Notebook **kernel**
+- Most common keyboard shortcuts:
+  - **Shift+Enter**: run cell and jump to next cell
+  - **Ctrl+/**: comment out or uncomment code
+
+--------------------------------------------------------------------------------
+
+## Lab: Getting comfortable with Jupyter Notebooks
+
+> Start time: 9:15 am
+> Expected completion time 10 minutes
+
+Take 5 minutes to familiarize yourself with Jupyter Notebooks. 
+ - Try creating a new Notebook
+ - Create new cells of different kind
+ - Run some cell magics
+ - Change the kernel
+ - Learn how to import existing Notebooks
 
 
----
+--------------------------------------------------------------------------------
 
-## Agenda Day 1: Anomaly Detection
+## Two Day Agenda
 
-- Data exploration
-- Data preparation
-- Model development
-- Model deployment
+### Day 1: Anomaly Detection in Structured Time Series Data
+- Using AML SDK on Azure Databricks
+  - Feature Engineering and Model Development w/ AML SDK
+  - Hyperparameter Tuning with HyperDrive and AmlCompute (fka BatchAI)
+  - Model Deployment with AKS
+### Day 2: Predictive Maintenance
+- Using AML SDK on Datascience Virtual Machine (DSVM)
+  - Feature Engineering and Model Development w/ AML SDK
+  - Including Anomaly Detection for a multi-stage pipeline
+  - Automated Machine Learning
+  - Model Deployment with ACI
 
 --------------------------------------------------------------------------------
 
 ## What are anomalies?
+
 Any kind of data instance that is not normal.
 
 <div style="text-align:center"><img src ="./images/oil_crisis_1973_carless_sunday.jpg" width="650"/></div>
@@ -94,13 +143,12 @@ Any kind of data instance that is not normal.
 
 --------------------------------------------------------------------------------
 
-## Intrusion Detection
+## Intrusion detection
 
 ### Host-based intrusion detection systems
 
 > Anomalous subsequences (*collective anomalies*) in system call traces, caused by malicious programs, unauthorized behavior and policy violations. 
 > The *co-occurrence of events* that is the key factor in differentiating between normal and anomalous behavior.
-
 
 ### Network intrusion detection systems
 
@@ -145,11 +193,11 @@ Anomalies can be due to several reasons: abnormal patient condition, instrumenta
 
 ## Other Applications
 
-### Image Data
+### Image data
 
 > Motion detection or abnormal regions in a static image (e.g. mammographic image analysis)
 
-### Text Data
+### Text data
 
 > Example: Detect novel topics, events, or news stories in a collection of documents or news articles.
 
@@ -228,7 +276,6 @@ Assumes that the training data has labeled instances *only* for the normal class
 
 Do not require training data, and thus are most widely applicable.
 
-
 --------------------------------------------------------------------------------
 
 ## Final course architecture
@@ -237,39 +284,13 @@ Do not require training data, and thus are most widely applicable.
 
 --------------------------------------------------------------------------------
 
-## Lab 1.1 (a): Setup and Introduction to Anomaly Detection
+## Lab 1.1 (a): Setup and introduction to Anomaly Detection
 
-A simple, but common approach to anomaly detection:
+## Goal: 
 
-<div style="text-align:center"><img src =./images/basic_ad.png width="1200" /></div>
+Develop an intuitive understanding of one of the most common and powerful approaches to Anomaly Detection in structured Timeseries data.
 
---------------------------------------------------------------------------------
-
-## Lab 1.1 (a): Setup and Introduction to Anomaly Detection
-
-
-<div style="text-align:center"><img src =./images/data_w_seasons.png width="1000" /></div>
-
---------------------------------------------------------------------------------
-
-## Lab 1.1 (a): Setup and Introduction to Anomaly Detection
-
-
-<div style="text-align:center"><img src =./images/basic_ad_w_seasons.png width="800" /></div>
-
---------------------------------------------------------------------------------
-
-## Lab 1.1 (a): Setup and Introduction to Anomaly Detection
-
-
-<div style="text-align:center"><img src =./images/basic_ad_w_seasons_linear.png width="800" /></div>
-
-
---------------------------------------------------------------------------------
-
-## Lab 1.1 (a): Setup and Introduction to Anomaly Detection
-
-### Outline of lab:
+### Outline:
 1. Create a hypothetical time series dataset
 2. Apply simple, but common anomaly detection
 3. Understand the limitations of this approach in dealing with
@@ -279,7 +300,7 @@ A simple, but common approach to anomaly detection:
 
 --------------------------------------------------------------------------------
 
-## Open and run through lab 1.1 (a): Setup and Introduction
+## Open and run through lab 1.1 (a): Setup and introduction
 
 > Start time: 9:40 am
 > Expected completion time 20 minutes
@@ -289,34 +310,16 @@ A simple, but common approach to anomaly detection:
 
 --------------------------------------------------------------------------------
 
-## Lab 1.1 (b): Data Preparation for Time Series
+## Lab 1.1 (b): Data preparation for time series
 
-In this lab, we will explore and visualize our telemetry data.  You will learn how calculate metrics on top of your raw time series to gain deeper insights into your data.  
-
-### In this lab, you will:
+## Goals:
 - Get to know your dataset better by visualizing it
 - Learn how to visualize time series data
 - Become familiar with a set of standard metrics that can be defined on time series data
 
 --------------------------------------------------------------------------------
 
-## Lab 1.1 (b): Data Preparation for Time Series
-
-Bollinger Bands
-
-<div style="text-align:center"><img src =./images/bollinger_bands.png width="500" /></div>
-
---------------------------------------------------------------------------------
-
-## Lab 1.1 (b): Data Preparation for Time Series
-
-Lag Featuers
-
-<div style="text-align:center"><img src =./images/lag_features_c.png width="500" /></div>
-
---------------------------------------------------------------------------------
-
-## Open and run through lab 1.1 (b): Data preparation for time series
+## Open and run through lab 1.1 (b): Data preparation for time series data
 
 > Start time: 10 am
 > Expected completion time 30 minutes
@@ -326,17 +329,19 @@ Lag Featuers
 
 --------------------------------------------------------------------------------
 
-## Lab 1.2: Model Development
+## Lab 1.2: Model development
 
-### In this lab, we will do the following:
-- Use python port [pyculiarity](https://github.com/nicolasmiller/pyculiarity) of [Twitter's anomaly detection R library](https://github.com/twitter/AnomalyDetection)
-- Apply this library to detect anomalies in our telemetry data
-- Optimize our approach to perform online anomaly detection
+### Goal:
+- Learn how to integrate 3d-party open-source libraries into your project w/ AML SDK
+- Use python port [pyculiarity](https://github.com/nicolasmiller/pyculiarity) of [Twitter's anomaly detection R library](https://github.com/twitter/AnomalyDetection) to detect anomalies in our telemetry data
+
+
 
 --------------------------------------------------------------------------------
 
-## Lab 1.2: Model Development
+## Lab 1.2: Model development
 
+### Outline:
 We will first develop a solution that processes all the data in *batch*, and then optimize the solution so that it detects anomalies *online*, as a new sensor measurement arrives.
 
 ### Challenges:
@@ -356,27 +361,69 @@ We will first develop a solution that processes all the data in *batch*, and the
 
 --------------------------------------------------------------------------------
 
-## Lab 1.3: Model Deployment
+## Lab 1.3: Machine Learning Experimentation
 
-This is the last session of today. 
+### Goals: Learn to perform ML Experimentation with the AML SDK:
+- Create a high performance AMLCompute cluster for ML experimentation
+- Log and investigate run history using the AML SDK and Azure Portal
 
-We will cover the following steps:
-
-1. Recap: Configure your Azure Workspace.
-2. Create a Docker image, using the Azure ML SDK.
-3. Test your Application by running the Docker container locally.
-6. Register your docker image in the Azure Container Registry (ACR).
-7. Deploy your Docker image as an Azure Container Instance ([ACI](https://azure.microsoft.com/en-us/services/container-instances/)) Webservice.
-8. Test your Webservice.
  
 --------------------------------------------------------------------------------
 
-## Open and run through lab 1.3: Deployment
+## Open and run through lab 1.3: Machine Learning Experimentation
 
 > Start time: 1 pm
-> Expected completion time 60 minutes
+> Expected completion time 50 minutes
 > Feel free to work together
 > There is a 10-minute break at the end
+> Return at 2:00 pm
+
+
+--------------------------------------------------------------------------------
+
+## Lab 1.4: Hyper Parameter Tuning w/ HyperDrive
+
+## Goal: 
+Learn how to use AML HyperDrive and Compute for optimizing your model
+
+ 
+--------------------------------------------------------------------------------
+
+## Open and run through lab 1.4: Hyper Parameter Tuning w/ HyperDrive
+
+> Start time: 2 pm
+> Expected completion time 50 minutes
+> Feel free to work together
+> There is a 10-minute break at the end
+> Return at 3:00 pm
+
+---------------------------------------------------------------------------------
+
+## Lab 1.5: Model deployment
+
+### Goal: 
+Learn to deploy your machine learning solution as a AKS webservice w/ AML SDK
+
+### We will cover the following steps:
+
+1. Recap: Configure your Azure Workspace.
+2. Create a Docker image, using the Azure ML SDK.
+3. Register your docker image in the Azure Container Registry (ACR).
+4. Deploy your Docker image as an Azure Kubernetes Service (AKS) Webservice.
+5. Test your Webservice.
+ 
+--------------------------------------------------------------------------------
+
+## Open and run through lab 1.5: Model Deployment
+
+> Start time: 3 pm
+> Expected completion time 60 minutes
+> Feel free to work together
+
+--------------------------------------------------------------------------------
+
+
+
 
 --------------------------------------------------------------------------------
 
@@ -384,15 +431,17 @@ We will cover the following steps:
 
 --------------------------------------------------------------------------------
 
-## End of day 1
+## End of Day 1
 
 ### Further reading:
 
-> *Anomaly Detection: A Survey* by Varun Chandola, Arindam Banerjee, and Vipin Kumar
+> - *Anomaly Detection: A Survey* by Varun Chandola, Arindam Banerjee, and Vipin Kumar
+> - AML-SDK Documentation: https://docs.microsoft.com/en-gb/python/api/overview/azure/ml/intro?view=azure-ml-py)
+> - AML-SDK Notebooks: https://github.com/Azure/MachineLearningNotebooks/
 
 --------------------------------------------------------------------------------
 
-## Agenda Day 2: Predictive Maintenance
+## Agenda for course 2: Predictive maintenance
 
 - Data exploration
 - Training a model manually
@@ -559,9 +608,12 @@ Example use-case: *Anomalous* sensor measurements on industrial machines may be 
 
 ## Q&A
 
+### Please take the course survey
+#### Please please pretty please
+
 --------------------------------------------------------------------------------
 
-## End of day 2
+## End of course 2
 
 ### Further reading
 

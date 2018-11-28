@@ -1,0 +1,17 @@
+name: amladpm
+
+channels:
+  - defaults
+  - conda-forge
+
+dependencies:
+  - python=3.6
+  - seaborn	
+  - jupyter_contrib_nbextensions # jupyter notebook extensions
+  - jupyter_nbextensions_configurator # GUI tab for managing extensions
+
+  - pip:
+    - pyculiarity
+    - pytictoc
+    - azureml-sdk[automl,notebooks]==0.1.74
+    

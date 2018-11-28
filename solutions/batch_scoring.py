@@ -28,7 +28,7 @@ def rolling_average(df, column, n=24):
     return df
 
 
-def do_ad(df, alpha=0.05, max_anoms=0.02, only_last=None, longterm=False, e_value=False, direction='both'):
+def do_ad(df, alpha=0.005, max_anoms=0.1, only_last=None, longterm=False, e_value=False, direction='both'):
     """
     This method performs the actual anomaly detection.  Expecting the a dataframe with multiple sensors,
     and a specification of which sensor to use for anomaly detection.
