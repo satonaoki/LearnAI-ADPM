@@ -16,5 +16,5 @@ The instuctor will provide a link to you that you can use for provisioning your 
 
 You can run these notebooks both on Azure Databricks and on Data Science Virtual Machines.  Please follow the below instructions for the environment you are working with: 
 
-- [DSVM](lab0.0_Setting_Up_Env/configure_environment_DSVM.ipynb)
-- [Aure Databricks](lab0.0_Setting_Up_Env/configure_environment_ADB.ipynb)
+- [DSVM](lab00.0_Setting_Up_Env/lab00.0_configure_environment_DSVM.ipynb)
+- [Aure Databricks](lab00.0_Setting_Up_Env/lab00.0_configure_environment_ADB.ipynb)
