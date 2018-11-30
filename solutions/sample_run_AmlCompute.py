@@ -2,13 +2,8 @@
 # Licensed under the MIT License.
 
 """
-This functions expects a dataframe df as mandatory argument.  
-The first column of the df should contain timestamps, the second machine IDs
 
-Keyword arguments:
-n_machines_test: the number of machines to include in the sample
-ts_per_machine: the number of timestamps to test for each machine
-window_size: the size of the window of data points that are used for anomaly detection
+This script was modified from the sample_run function of lab 1.2, such that it can be run on AmlCompute.
 
 """
 
@@ -55,8 +50,8 @@ parser.add_argument('--window_size', type=int, dest='window_size', default=100, 
 parser.add_argument('--com', type=int, dest='com', default=12, help='Specify decay in terms of center of mass for running avg')
 args = parser.parse_args()
 
-n_epochs = 100
-p_anoms = .5
+n_epochs = 1000
+p_anoms = .9
 
 data_folder = os.path.join(args.data_folder, 'telemetry')
 window_size = args.window_size
@@ -78,8 +73,8 @@ print("Done.")
 print('Dataset is stored here: ', data_folder)
 
 # create arrays that will hold the results of batch AD (y_true) and online AD (y_pred)
-y_true = []
-y_pred = []
+y_true = [False] * n_epochs
+y_pred = [True] * n_epochs
 run_times = []
     
 # check which unique machines, sensors, and timestamps we have in the dataset
@@ -134,8 +129,8 @@ for i in range(0, n_epochs):
     # perform online AD, and write result to y_pred
     y_pred_i, run_times_i = detect_ts_online(df_smooth, window_size, test_case_index)
     
-    y_true.append(y_true_i)
-    y_pred.append(y_pred_i)
+    y_true[i] = y_true_i
+    y_pred[i] = y_pred_i
     run_times.append(run_times_i)
     
     score = fbeta_score(y_true, y_pred, beta=2)

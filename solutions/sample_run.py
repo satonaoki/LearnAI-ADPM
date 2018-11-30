@@ -10,15 +10,17 @@ def sample_run(df, anoms_ref, window_size = 500, com = 12):
     This functions expects a dataframe df as mandatory argument.  
     The first column of the df should contain timestamps, the second machine IDs
     
-    Keyword arguments:
+    arguments:
     df: a pandas data frame with two columns: 1. timestamp, 2. value
     anoms_ref: reference anomaly detection results 
+    
+    Keyword arguments:
     window_size: the size of the window of data points that are used for anomaly detection
     com: decay in terms of center of mass (this approximates averageing over about twice as many hours)
     """
 
-    n_epochs = 10
-    p_anoms = .5
+    n_epochs = 1000
+    p_anoms = .9
 
     def detect_ts_online(df_smooth, window_size, stop):
         is_anomaly = False
@@ -45,8 +47,8 @@ def sample_run(df, anoms_ref, window_size = 500, com = 12):
         return rm_o
 
     # create arrays that will hold the results of batch AD (y_true) and online AD (y_pred)
-    y_true = []
-    y_pred = []
+    y_true = [False] * n_epochs
+    y_pred = [True] * n_epochs
     run_times = []
     
     # check which unique machines, sensors, and timestamps we have in the dataset
@@ -97,8 +99,8 @@ def sample_run(df, anoms_ref, window_size = 500, com = 12):
         # perform online AD, and write result to y_pred
         y_pred_i, run_times_i = detect_ts_online(df_smooth, window_size, test_case_index)
         
-        y_true.append(y_true_i)
-        y_pred.append(y_pred_i)
+        y_true[i] = y_true_i
+        y_pred[i] = y_pred_i
         run_times.append(run_times_i)
             
     return fbeta_score(y_true, y_pred, beta=2), np.mean(run_times)
