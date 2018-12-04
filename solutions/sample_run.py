@@ -5,7 +5,7 @@ import time
 
 from pyculiarity import detect_ts
 
-def sample_run(df, anoms_ref, window_size = 500, com = 12):
+def sample_run(df, anoms_ref, window_size = 500, com = 12, n_epochs=10):
     """
     This functions expects a dataframe df as mandatory argument.  
     The first column of the df should contain timestamps, the second machine IDs
@@ -19,8 +19,7 @@ def sample_run(df, anoms_ref, window_size = 500, com = 12):
     com: decay in terms of center of mass (this approximates averageing over about twice as many hours)
     """
 
-    n_epochs = 1000
-    p_anoms = .9
+    p_anoms = .1
 
     def detect_ts_online(df_smooth, window_size, stop):
         is_anomaly = False

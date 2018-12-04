@@ -1,3 +1,4 @@
+
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
@@ -9,16 +10,17 @@ This script was modified from the sample_run function of lab 1.2, such that it c
 
 import pandas as pd
 import numpy as np
-import argparse
+from sklearn.metrics import fbeta_score
 import os
 import time
+
 from pyculiarity import detect_ts
-from sklearn.metrics import fbeta_score
 
 from azureml.core import Run
 
+import argparse # for parsing input arguments
 
-def run_avg(ts, com=6):
+def running_avg(ts, com=6):
     rm_o = np.zeros_like(ts)
     rm_o[0] = ts[0]
     
@@ -44,100 +46,104 @@ def detect_ts_online(df_smooth, window_size, stop):
     return is_anomaly, run_time
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
-parser.add_argument('--window_size', type=int, dest='window_size', default=100, help='window size')
-parser.add_argument('--com', type=int, dest='com', default=12, help='Specify decay in terms of center of mass for running avg')
-args = parser.parse_args()
+def sample_run(df, anoms_batch, run, window_size = 500, com = 12, n_epochs=10):
 
-n_epochs = 1000
-p_anoms = .9
+    # create arrays that will hold the results of batch AD (y_true) and online AD (y_pred)
+    y_true = [False] * n_epochs
+    y_pred = [True] * n_epochs
+    run_times = []
 
-data_folder = os.path.join(args.data_folder, 'telemetry')
-window_size = args.window_size
-com = args.com
+    # check which unique machines, sensors, and timestamps we have in the dataset
+    machineIDs = df['machineID'].unique()
+    sensors = df.columns[2:]
+    timestamps = df['datetime'].unique()[window_size:]
 
-print("Reading data ... ", end="")
-df = pd.read_csv(os.path.join(data_folder, 'telemetry.csv'))
-print("Done.")
+    # sample n_machines_test random machines and sensors 
+    random_machines = np.random.choice(machineIDs, n_epochs)
+    random_sensors = np.random.choice(sensors, n_epochs)
 
-print("Parsing datetime...", end="")
-df['datetime'] = pd.to_datetime(df['datetime'], format="%m/%d/%Y %I:%M:%S %p")
-print("Done.")
+    # we intialize an array with that will later hold a sample of timetamps
+    random_timestamps = np.random.choice(timestamps, n_epochs)
 
-print("Reading data ... ", end="")
-anoms_batch = pd.read_csv(os.path.join(data_folder, 'anoms.csv'))
-anoms_batch['datetime'] = pd.to_datetime(anoms_batch['datetime'], format="%Y-%m-%d %H:%M:%S")
-print("Done.")
+    for i in range(0, n_epochs):
+        # take a slice of the dataframe that only contains the measures of one random machine
+        df_s = df[df['machineID'] == random_machines[i]]
+        
+        # smooth the values of one random sensor, using our run_avg function
+        smooth_values = running_avg(df_s[random_sensors[i]].values, com)
 
-print('Dataset is stored here: ', data_folder)
+        # create a data frame with two columns: timestamp, and smoothed values
+        df_smooth = pd.DataFrame(data={'timestamp': df_s['datetime'].values, 'value': smooth_values})
 
-# create arrays that will hold the results of batch AD (y_true) and online AD (y_pred)
-y_true = [False] * n_epochs
-y_pred = [True] * n_epochs
-run_times = []
+        # load the results of batch AD for this machine and sensor
+        anoms_s = anoms_batch[((anoms_batch['machineID'] == random_machines[i]) & (anoms_batch['errorID'] == random_sensors[i]))]
+        
+        # only do anomaly detection online, if the batch solution actually found an anomaly
+        if anoms_s.shape[0] > 0:
+            # Let's make sure we have at least one anomaly in our sample! Otherwise it doesn't make sense to calculate
+            # any performance metric.  We can just use the timestamp of the last anomalys
+            if i == 0:
+                anoms_timestamps = anoms_s['datetime'].values
+                random_timestamps[i] = anoms_timestamps[-1:][0]
+
+            # select the row of the test case
+            test_case = df_smooth[df_smooth['timestamp'] == random_timestamps[i]]
+            test_case_index = test_case.index.values[0]
+
+            # check whether the batch AD found an anomaly at that time stamps and copy into y_true at idx
+            y_true_i = random_timestamps[i] in anoms_s['datetime'].values
+
+            # perform online AD, and write result to y_pred
+            y_pred_i, run_times_i = detect_ts_online(df_smooth, window_size, test_case_index)
+        else:
+            y_pred_i, y_true_i = 0, 0
+            
+        y_true[i] = y_true_i
+        y_pred[i] = y_pred_i
+        run_times.append(run_times_i)
+        
+        score = np.float(fbeta_score(y_true, y_pred, beta=2))
+        print("fbeta_score: %s" % round(score, 2))
+        
+        run.log('run_time', np.mean(run_times))
+        run.log('fbeta_score', score)
+        
+    run.log('final_fbeta_score', np.float(score))
+
+        
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
+    parser.add_argument('--window_size', type=int, dest='window_size', default=100, help='window size')
+    parser.add_argument('--com', type=int, dest='com', default=12, help='Specify decay in terms of center of mass for running avg')
+    parser.add_argument('--n_epochs', type=int, dest='n_epochs', default=1000, help='Specify decay in terms of center of mass for running avg')
+    args = parser.parse_args()
+
+    data_folder = os.path.join(args.data_folder, 'telemetry')
+    window_size = args.window_size
+    com = args.com
+    n_epochs = args.n_epochs
     
-# check which unique machines, sensors, and timestamps we have in the dataset
-machineIDs = df['machineID'].unique()
-sensors = df.columns[2:]
-timestamps = df['datetime'].unique()[window_size:]
+    # start an Azure ML run
+    run = Run.get_context()
+
+    print("Reading data ... ", end="")
+    df = pd.read_csv(os.path.join(data_folder, 'telemetry.csv'))
+    print("Done.")
+
+    print("Parsing datetime...", end="")
+    df['datetime'] = pd.to_datetime(df['datetime'], format="%m/%d/%Y %I:%M:%S %p")
+    print("Done.")
     
-# sample n_machines_test random machines and sensors 
-random_machines = np.random.choice(machineIDs, n_epochs)
-random_sensors = np.random.choice(sensors, n_epochs)
+    print("Reading data ... ", end="")
+    anoms_batch = pd.read_csv(os.path.join(data_folder, 'anoms.csv'))
+    anoms_batch['datetime'] = pd.to_datetime(anoms_batch['datetime'], format="%Y-%m-%d %H:%M:%S")
+    print("Done.")
 
-# we intialize an array with that will later hold a sample of timetamps
-random_timestamps = np.random.choice(timestamps, n_epochs)
+    print('Dataset is stored here: ', data_folder)
 
-# start an Azure ML run
-run = Run.get_context()
+    sample_run(df, anoms_batch, run, window_size, com, n_epochs)
 
-for i in range(0, n_epochs):
-    # take a slice of the dataframe that only contains the measures of one random machine
-    df_s = df[df['machineID'] == random_machines[i]]
-
-    # smooth the values of one random sensor, using our run_avg function
-    smooth_values = run_avg(df_s[random_sensors[i]].values, com)
-
-    # create a data frame with two columns: timestamp, and smoothed values
-    df_smooth = pd.DataFrame(data={'timestamp': df_s['datetime'].values, 'value': smooth_values})
-
-    # load the results of batch AD for this machine and sensor
-    anoms_s = anoms_batch[((anoms_batch['machineID'] == random_machines[i]) & (anoms_batch['errorID'] == random_sensors[i]))]
-
-    # We need to make sure that there are at least some anomalies in the test data.
-    # With probability p_anoms, we add an anomaly to the data
-    if np.random.random() < p_anoms:
-        anoms_timestamps = anoms_s['datetime'].values
-        np.random.shuffle(anoms_timestamps)
-        counter = 0 # the sole purpose of this counter is to make sure that the following while loop doesn't run forever
-        while anoms_timestamps[0] < timestamps[0]:
-            if counter > 100:
-                run.log('fbeta_score', 0.0)
-                break
-            np.random.shuffle(anoms_timestamps)
-            counter += 1
-        random_timestamps[i] = anoms_timestamps[0]
-
-    # select the row of the test case
-    test_case = df_smooth[df_smooth['timestamp'] == random_timestamps[i]]
-    test_case_index = test_case.index.values[0]
-
-    # check whether the batch AD found an anomaly at that time stamps and copy into y_true at idx
-    y_true_i = random_timestamps[i] in anoms_s['datetime'].values
-
-    # perform online AD, and write result to y_pred
-    y_pred_i, run_times_i = detect_ts_online(df_smooth, window_size, test_case_index)
     
-    y_true[i] = y_true_i
-    y_pred[i] = y_pred_i
-    run_times.append(run_times_i)
-    
-    score = fbeta_score(y_true, y_pred, beta=2)
-    
-    run.log('fbeta_score', np.float(score))
-    run.log('run_time', np.mean(run_times))
-    
-    print("fbeta_score: %s" % round(score, 2))
-    
-run.log('final_fbeta_score', np.float(score))
+if __name__== "__main__":
+      main()
