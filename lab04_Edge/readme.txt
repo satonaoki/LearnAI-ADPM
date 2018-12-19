@@ -1,1 +1,0 @@
-This lab is work in progress. Please visit again later.
